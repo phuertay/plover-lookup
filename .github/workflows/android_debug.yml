@@ -20,18 +20,27 @@ jobs:
       - name: Set up Android SDK
         run: |
           set -euo pipefail
-          tools_zip="${RUNNER_TEMP}/commandlinetools.zip"
-          curl -fL --retry 3 -o "${tools_zip}" \
-            https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
-          mkdir -p "${HOME}/android-sdk/cmdline-tools"
-          unzip -q "${tools_zip}" -d "${RUNNER_TEMP}/cmdline-tools"
-          mv "${RUNNER_TEMP}/cmdline-tools/cmdline-tools" "${HOME}/android-sdk/cmdline-tools/latest"
-          echo "ANDROID_HOME=${HOME}/android-sdk" >> "${GITHUB_ENV}"
-          echo "${HOME}/android-sdk/cmdline-tools/latest/bin" >> "${GITHUB_PATH}"
-          echo "${HOME}/android-sdk/platform-tools" >> "${GITHUB_PATH}"
-          yes | "${HOME}/android-sdk/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "${HOME}/android-sdk/cmdline-tools/latest/bin/sdkmanager" --install \
-            "platforms;android-35" "build-tools;35.0.0"
+          # ubuntu-latest already exports ANDROID_SDK_ROOT. A second ANDROID_HOME
+          # makes the Android Gradle Plugin abort, so both variables stay on this SDK.
+          sdk="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          if [ ! -d "${sdk}" ]; then
+            echo "Android SDK not found at ${sdk}" >&2
+            exit 1
+          fi
+          echo "ANDROID_HOME=${sdk}" >> "${GITHUB_ENV}"
+          echo "ANDROID_SDK_ROOT=${sdk}" >> "${GITHUB_ENV}"
+          echo "${sdk}/platform-tools" >> "${GITHUB_PATH}"
+          if [ -x "${sdk}/cmdline-tools/latest/bin/sdkmanager" ]; then
+            sdkmanager="${sdk}/cmdline-tools/latest/bin/sdkmanager"
+          else
+            sdkmanager="$(find "${sdk}/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          fi
+          if [ -z "${sdkmanager}" ]; then
+            echo "sdkmanager not found under ${sdk}" >&2
+            exit 1
+          fi
+          yes | "${sdkmanager}" --sdk_root="${sdk}" --licenses >/dev/null || true
+          "${sdkmanager}" --sdk_root="${sdk}" --install "platforms;android-35" "build-tools;35.0.0"
 
       - name: Unit tests and debug APK
         run: ./gradlew testDebugUnitTest assembleDebug --stacktrace

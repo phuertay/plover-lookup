@@ -29,7 +29,7 @@ The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. It is signed with 
 
 ## Continuous integration
 
-[`.github/workflows/android_debug.yml`](.github/workflows/android_debug.yml) runs on `ubuntu-latest`. It sets up Temurin 17 with `actions/setup-java`, installs the Android SDK, runs the unit tests and `assembleDebug`, and uploads the debug APK.
+[`.github/workflows/android_debug.yml`](.github/workflows/android_debug.yml) runs on `ubuntu-latest`. It sets up Temurin 17 with `actions/setup-java`, points `ANDROID_HOME` and `ANDROID_SDK_ROOT` at the same Android SDK, runs the unit tests and `assembleDebug`, and uploads the debug APK.
 
 Download it from a run of the [Android debug workflow](https://github.com/phuertay/plover-lookup/actions/workflows/android_debug.yml): open the run and download the `plover-lookup-debug` artifact.
 
