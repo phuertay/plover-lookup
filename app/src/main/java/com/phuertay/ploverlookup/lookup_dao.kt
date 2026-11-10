@@ -1,0 +1,121 @@
+package com.phuertay.ploverlookup
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+
+@Dao
+interface LookupDao {
+    @Query("SELECT COUNT(*) FROM dictionary")
+    fun dictionaryCount(): Int
+
+    @Query("SELECT * FROM dictionary ORDER BY built_in DESC, name COLLATE NOCASE ASC")
+    fun dictionaries(): List<Dictionary>
+
+    @Insert
+    fun insertDictionary(dictionary: Dictionary): Long
+
+    @Query("UPDATE dictionary SET enabled = :enabled WHERE id = :id")
+    fun setEnabled(id: Long, enabled: Boolean)
+
+    @Query("UPDATE dictionary SET entry_count = :entryCount WHERE id = :id")
+    fun setEntryCount(id: Long, entryCount: Int)
+
+    @Query("DELETE FROM dictionary WHERE id = :id AND built_in = 0")
+    fun deleteImported(id: Long)
+
+    @Insert
+    fun insertEntries(entries: List<Entry>)
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1 AND e.outline_key = :outlineKey
+        ORDER BY d.name ASC, e.outline ASC
+        """,
+    )
+    fun exactOutlines(outlineKey: String): List<StrokeHit>
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1 AND e.translation = :translation
+        ORDER BY e.translation ASC, e.stroke_count ASC, e.outline ASC
+        LIMIT 500
+        """,
+    )
+    fun byExactTranslation(translation: String): List<TranslationRow>
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1 AND e.translation_key IN (:variants)
+        ORDER BY e.translation ASC, e.stroke_count ASC, e.outline ASC
+        LIMIT 500
+        """,
+    )
+    fun byTranslationKey(variants: List<String>): List<TranslationRow>
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1 AND e.translation_trim IN (:variants)
+        ORDER BY e.translation ASC, e.stroke_count ASC, e.outline ASC
+        LIMIT 500
+        """,
+    )
+    fun byTranslationTrim(variants: List<String>): List<TranslationRow>
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1
+          AND e.translation_key >= :prefix
+          AND e.translation_key < :prefixEnd
+        ORDER BY e.translation ASC, e.stroke_count ASC, e.outline ASC
+        LIMIT 500
+        """,
+    )
+    fun byTranslationKeyPrefix(prefix: String, prefixEnd: String): List<TranslationRow>
+
+    @Query(
+        """
+        SELECT e.outline AS outline,
+               e.translation AS translation,
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name
+        FROM entry AS e
+        INNER JOIN dictionary AS d ON d.id = e.dictionary_id
+        WHERE d.enabled = 1
+          AND e.translation_trim >= :prefix
+          AND e.translation_trim < :prefixEnd
+        ORDER BY e.translation ASC, e.stroke_count ASC, e.outline ASC
+        LIMIT 500
+        """,
+    )
+    fun byTranslationTrimPrefix(prefix: String, prefixEnd: String): List<TranslationRow>
+}
