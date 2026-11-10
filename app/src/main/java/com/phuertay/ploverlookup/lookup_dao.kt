@@ -9,7 +9,7 @@ interface LookupDao {
     @Query("SELECT COUNT(*) FROM dictionary")
     fun dictionaryCount(): Int
 
-    @Query("SELECT * FROM dictionary ORDER BY built_in DESC, name COLLATE NOCASE ASC")
+    @Query("SELECT * FROM dictionary ORDER BY built_in ASC, id ASC")
     fun dictionaries(): List<Dictionary>
 
     @Insert
@@ -29,23 +29,31 @@ interface LookupDao {
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
-               d.name AS dictionary_name
+               e.stroke_count AS stroke_count,
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
-        WHERE d.enabled = 1 AND e.outline_key = :outlineKey
-        ORDER BY d.name ASC, e.outline ASC
+        WHERE d.enabled = 1 AND e.outline_key IN (:outlineKeys)
         """,
     )
-    fun exactOutlines(outlineKey: String): List<StrokeHit>
+    fun byOutlineKeys(outlineKeys: List<String>): List<RankedEntry>
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
                e.stroke_count AS stroke_count,
-               d.name AS dictionary_name
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
         WHERE d.enabled = 1 AND e.translation = :translation
@@ -53,14 +61,18 @@ interface LookupDao {
         LIMIT 500
         """,
     )
-    fun byExactTranslation(translation: String): List<TranslationRow>
+    fun byExactTranslation(translation: String): List<RankedEntry>
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
                e.stroke_count AS stroke_count,
-               d.name AS dictionary_name
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
         WHERE d.enabled = 1 AND e.translation_key IN (:variants)
@@ -68,14 +80,18 @@ interface LookupDao {
         LIMIT 500
         """,
     )
-    fun byTranslationKey(variants: List<String>): List<TranslationRow>
+    fun byTranslationKey(variants: List<String>): List<RankedEntry>
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
                e.stroke_count AS stroke_count,
-               d.name AS dictionary_name
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
         WHERE d.enabled = 1 AND e.translation_trim IN (:variants)
@@ -83,14 +99,18 @@ interface LookupDao {
         LIMIT 500
         """,
     )
-    fun byTranslationTrim(variants: List<String>): List<TranslationRow>
+    fun byTranslationTrim(variants: List<String>): List<RankedEntry>
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
                e.stroke_count AS stroke_count,
-               d.name AS dictionary_name
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
         WHERE d.enabled = 1
@@ -100,14 +120,18 @@ interface LookupDao {
         LIMIT 500
         """,
     )
-    fun byTranslationKeyPrefix(prefix: String, prefixEnd: String): List<TranslationRow>
+    fun byTranslationKeyPrefix(prefix: String, prefixEnd: String): List<RankedEntry>
 
     @Query(
         """
-        SELECT e.outline AS outline,
+        SELECT e.id AS id,
+               e.outline AS outline,
+               e.outline_key AS outline_key,
                e.translation AS translation,
                e.stroke_count AS stroke_count,
-               d.name AS dictionary_name
+               d.name AS dictionary_name,
+               d.built_in AS built_in,
+               d.id AS dictionary_id
         FROM entry AS e
         INNER JOIN dictionary AS d ON d.id = e.dictionary_id
         WHERE d.enabled = 1
@@ -117,5 +141,5 @@ interface LookupDao {
         LIMIT 500
         """,
     )
-    fun byTranslationTrimPrefix(prefix: String, prefixEnd: String): List<TranslationRow>
+    fun byTranslationTrimPrefix(prefix: String, prefixEnd: String): List<RankedEntry>
 }
