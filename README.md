@@ -8,8 +8,10 @@ The app is Kotlin and Jetpack Compose over a local SQLite database. It is not a 
 
 Enabled dictionaries are searched together. Each match shows the dictionary it came from.
 
-- An outline matches when it is the same stroke after trimming, removing spaces, and uppercasing. `kat` finds `KAT`.
-- A translation matches the text itself, the start of the folded text, and a few endings (`s`, `es`, `ed`, `ing`, and the same kind of fold the lim.au lookup uses). Folding lowercases, removes spaces, and unwraps Plover affixes such as `{^ing}` to `ing`.
+A stroke has one translation. Imported dictionaries are checked in the order they were added, and the built-in sample is checked last. The first dictionary that defines a stroke wins, and a later copy of that stroke is ignored. Inside one file, the first entry for a stroke is kept. A winning `{plover:deleted}` removes the stroke.
+
+- An outline matches when it is the same stroke after trimming, removing spaces, and uppercasing. `kat` finds `KAT`. Searching `S-T` shows that one translation, not every dictionary that also defined `S-T`.
+- A translation matches the text itself, the start of the folded text, and a few endings (`s`, `es`, `ed`, `ing`, and the same kind of fold the lim.au lookup uses). Folding lowercases, removes spaces, and unwraps Plover affixes such as `{^ing}` to `ing`. An outline is included only when its winning translation is the one that matched, so `is the` does not list a stroke whose earlier entry is `is it`.
 
 ## Dictionaries
 

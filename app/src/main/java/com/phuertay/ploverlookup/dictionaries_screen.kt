@@ -45,7 +45,7 @@ fun DictionariesScreen(
             modifier = Modifier.padding(top = 8.dp),
         )
         Text(
-            "Enabled dictionaries are searched together. The sample stays on the device. Personal dictionaries are not part of this project.",
+            "The top dictionary wins when several define the same stroke. Imported dictionaries are listed in the order they were added, and the sample is last. Inside one file, the first entry for a stroke is kept. Personal dictionaries stay on the device.",
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

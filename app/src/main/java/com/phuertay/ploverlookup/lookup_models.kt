@@ -17,6 +17,17 @@ data class TranslationRow(
     @ColumnInfo(name = "dictionary_name") val dictionaryName: String,
 )
 
+data class RankedEntry(
+    @ColumnInfo(name = "id") val id: Long,
+    @ColumnInfo(name = "outline") val outline: String,
+    @ColumnInfo(name = "outline_key") val outlineKey: String,
+    @ColumnInfo(name = "translation") val translation: String,
+    @ColumnInfo(name = "stroke_count") val strokeCount: Int,
+    @ColumnInfo(name = "dictionary_name") val dictionaryName: String,
+    @ColumnInfo(name = "built_in") val builtIn: Boolean,
+    @ColumnInfo(name = "dictionary_id") val dictionaryId: Long,
+)
+
 data class OutlineRow(
     val outline: String,
     val strokeCount: Int,
