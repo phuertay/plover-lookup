@@ -2,8 +2,10 @@ package com.phuertay.ploverlookup
 
 import android.content.Context
 import java.io.InputStream
+import java.util.zip.GZIPInputStream
 
 private const val OUTLINE_KEY_CHUNK = 500
+private const val PLOVER_DICTIONARY = "Plover"
 
 class LookupRepository(
     private val context: Context,
@@ -13,10 +15,14 @@ class LookupRepository(
 
     fun dictionaries(): List<Dictionary> = dao.dictionaries()
 
-    fun ensureSample() {
-        if (dao.dictionaryCount() > 0) return
-        context.assets.open("sample_dictionary.json").use { input ->
-            importStream("Sample", input, builtIn = true) {}
+    fun ensurePlover() {
+        // The old sample mapped THE to "the". In the Plover dictionary, THE is "they".
+        dao.deleteBuiltIn("Sample")
+        if (dao.dictionaries().any { it.builtIn && it.name == PLOVER_DICTIONARY }) return
+        context.assets.open("plover.json.gz").use { raw ->
+            GZIPInputStream(raw).use { input ->
+                importStream(PLOVER_DICTIONARY, input, builtIn = true) {}
+            }
         }
     }
 

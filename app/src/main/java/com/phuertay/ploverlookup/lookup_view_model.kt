@@ -54,7 +54,7 @@ class LookupViewModel(application: Application) : AndroidViewModel(application) 
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.ensureSample()
+                repository.ensurePlover()
                 _dictionaries.value = repository.dictionaries()
             }
             _ready.value = true

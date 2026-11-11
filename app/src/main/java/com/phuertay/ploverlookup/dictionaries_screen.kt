@@ -46,7 +46,7 @@ fun DictionariesScreen(
             modifier = Modifier.padding(top = 8.dp),
         )
         Text(
-            "The top dictionary wins when several define the same stroke. Imported dictionaries are listed in the order they were added, and the sample is last. Inside one file, the first entry for a stroke is kept. Personal dictionaries stay on the device.",
+            "The top dictionary wins when several define the same stroke. Imported dictionaries are listed in the order they were added, and the built-in Plover dictionary is last. Inside one file, the first entry for a stroke is kept. Personal dictionaries stay on the device.",
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
