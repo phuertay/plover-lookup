@@ -28,6 +28,7 @@ fun DictionariesScreen(
     modifier: Modifier = Modifier,
 ) {
     val dictionaries by viewModel.dictionaries.collectAsStateWithLifecycle()
+    val showDictionaryName by viewModel.showDictionaryName.collectAsStateWithLifecycle()
     val importState by viewModel.importState.collectAsStateWithLifecycle()
     val importing = importState is ImportUi.Running
     Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
@@ -49,6 +50,23 @@ fun DictionariesScreen(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Row(
+            Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Dictionary name", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Show it on the same line as the stroke.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = showDictionaryName,
+                onCheckedChange = viewModel::setShowDictionaryName,
+            )
+        }
         LazyColumn(Modifier.weight(1f)) {
             items(dictionaries, key = { it.id }) { dictionary ->
                 Row(
