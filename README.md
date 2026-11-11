@@ -33,7 +33,7 @@ The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. It is signed with 
 
 [`.github/workflows/android_debug.yml`](.github/workflows/android_debug.yml) runs on `ubuntu-latest`. It sets up Temurin 17 with `actions/setup-java`, points `ANDROID_HOME` and `ANDROID_SDK_ROOT` at the same Android SDK, runs the unit tests and `assembleDebug`, and signs the APK with the sideload key.
 
-Open a run of the [Android debug workflow](https://github.com/phuertay/plover-lookup/actions/workflows/android_debug.yml). The run summary has a direct download for `plover-lookup.apk`. Install that file over the copy already on the tablet. Builds from before this key used a different signature, so the first install of this APK needs the old app removed once. Later runs update in place.
+The current APK is [plover-lookup.apk](https://github.com/phuertay/plover-lookup/releases/download/sideload/plover-lookup.apk). That link is the APK file. A run of the [Android debug workflow](https://github.com/phuertay/plover-lookup/actions/workflows/android_debug.yml) on `main` replaces it and repeats the same link in the run summary. Builds from before the sideload key used a different signature, so the first install of this APK needs the old app removed once. Later downloads update in place.
 
 ## License
 
