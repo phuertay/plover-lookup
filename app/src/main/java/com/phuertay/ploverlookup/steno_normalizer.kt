@@ -50,6 +50,16 @@ fun translationStartsWithQuery(translation: String, rawQuery: String): Boolean {
     return translation.trim().lowercase(Locale.US).startsWith(query)
 }
 
+/** Drop spaces so `# - T` displays as `#-T`. Slashes between strokes stay. */
+fun compactOutline(outline: String): String {
+    if (outline.none { it.isWhitespace() }) return outline
+    return buildString(outline.length) {
+        for (ch in outline) {
+            if (!ch.isWhitespace()) append(ch)
+        }
+    }
+}
+
 /** Trim, drop spaces, and uppercase. `kat` and `K A T` both become `KAT`. */
 fun normalizeOutline(outline: String): String {
     val trimmed = outline.trim()

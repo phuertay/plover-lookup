@@ -84,7 +84,7 @@ class LookupRepository(
         }
         return LookupResults(
             strokeHits = strokeHits,
-            translations = groupTranslations(chosen),
+            translations = groupTranslations(chosen, match.rawTrimmed),
             truncated = truncated,
         )
     }

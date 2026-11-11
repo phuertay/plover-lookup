@@ -250,7 +250,7 @@ private fun StrokeLine(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            outline,
+            compactOutline(outline),
             modifier = Modifier.weight(1f),
             fontFamily = FontFamily.Monospace,
             style = outlineStyle,

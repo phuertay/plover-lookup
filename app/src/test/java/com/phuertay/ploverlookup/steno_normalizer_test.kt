@@ -8,6 +8,13 @@ import org.junit.Test
 
 class StenoNormalizerTest {
     @Test
+    fun compactOutlineDropsSpacesAndKeepsSlashes() {
+        assertEquals("#-T", compactOutline("# - T"))
+        assertEquals("-T", compactOutline("-T"))
+        assertEquals("KAT/KATS", compactOutline("K A T / KATS"))
+    }
+
+    @Test
     fun normalizesOutlines() {
         assertEquals("KAT", normalizeOutline("kat"))
         assertEquals("KAT", normalizeOutline("  KAT  "))

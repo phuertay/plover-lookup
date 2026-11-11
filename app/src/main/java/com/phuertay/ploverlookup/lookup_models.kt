@@ -60,6 +60,19 @@ data class LookupResults(
     }
 }
 
+/**
+ * The typed word comes first, then the same word in another case, then longer
+ * phrases. `the` stays ahead of `The` and `The Hobbit`.
+ */
+internal fun translationRank(translation: String, rawQuery: String): Int {
+    val query = rawQuery.trim()
+    if (query.isEmpty()) return 1
+    val text = translation.trim()
+    if (text == query) return 0
+    if (text.equals(query, ignoreCase = true)) return 1
+    return 2
+}
+
 fun translationLines(groups: List<TranslationGroup>): List<TranslationLines> {
     val grouped = LinkedHashMap<String, MutableList<OutlineLine>>()
     for (group in groups) {
@@ -73,8 +86,16 @@ fun translationLines(groups: List<TranslationGroup>): List<TranslationLines> {
     }
 }
 
-fun groupTranslations(rows: List<TranslationRow>): List<TranslationGroup> {
-    val sorted = rows.sortedWith(compareBy({ it.translation }, { it.strokeCount }, { it.outline }))
+fun groupTranslations(rows: List<TranslationRow>, rawQuery: String = ""): List<TranslationGroup> {
+    val sorted = rows.sortedWith(
+        compareBy(
+            { translationRank(it.translation, rawQuery) },
+            { it.strokeCount },
+            { it.translation.lowercase() },
+            { it.translation },
+            { it.outline },
+        ),
+    )
     val grouped = LinkedHashMap<Pair<String, String>, MutableList<TranslationRow>>()
     for (row in sorted) {
         grouped.getOrPut(row.translation to row.dictionaryName) { mutableListOf() }.add(row)

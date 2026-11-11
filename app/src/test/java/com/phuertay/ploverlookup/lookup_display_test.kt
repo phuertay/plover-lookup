@@ -33,4 +33,18 @@ class LookupDisplayTest {
         )
         assertEquals(listOf("S*T" to "Personal"), lines[1].outlines.map { it.outline to it.dictionaryName })
     }
+
+    @Test
+    fun theBriefComesBeforeTheCapitalAndPhrases() {
+        val groups = groupTranslations(
+            listOf(
+                TranslationRow("#-T/HO/PWEUT", "The Hobbit", 3, "Lapwing"),
+                TranslationRow("# - T", "The", 1, "Lapwing"),
+                TranslationRow("-T", "the", 1, "Lapwing"),
+            ),
+            "the",
+        )
+        assertEquals(listOf("the", "The", "The Hobbit"), groups.map { it.translation })
+        assertEquals(listOf("-T"), groups[0].outlines.map { it.outline })
+    }
 }
