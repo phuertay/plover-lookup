@@ -2,7 +2,6 @@ package com.phuertay.ploverlookup
 
 import android.content.Context
 import java.io.InputStream
-import java.util.zip.GZIPInputStream
 
 private const val OUTLINE_KEY_CHUNK = 500
 private const val LAPWING_DICTIONARY = "Lapwing"
@@ -20,10 +19,10 @@ class LookupRepository(
         dao.deleteBuiltIn("Sample")
         dao.deleteBuiltIn("Plover")
         if (dao.dictionaries().any { it.builtIn && it.name == LAPWING_DICTIONARY }) return
-        context.assets.open("lapwing.json.gz").use { raw ->
-            GZIPInputStream(raw).use { input ->
-                importStream(LAPWING_DICTIONARY, input, builtIn = true) {}
-            }
+        // The source file is gzipped. Android unpacks a .gz asset and drops the suffix,
+        // so the packaged name is lapwing.json and the bytes are plain JSON.
+        context.assets.open("lapwing.json").use { input ->
+            importStream(LAPWING_DICTIONARY, input, builtIn = true) {}
         }
     }
 
