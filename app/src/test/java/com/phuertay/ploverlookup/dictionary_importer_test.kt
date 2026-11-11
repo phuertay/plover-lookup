@@ -129,10 +129,10 @@ class DictionaryImporterTest {
     }
 
     @Test
-    fun ploverDictionaryHasBriefsForItAndThe() {
+    fun lapwingDictionaryHasBriefsForItAndThe() {
         val file = listOf(
-            File("src/main/assets/plover.json.gz"),
-            File("app/src/main/assets/plover.json.gz"),
+            File("src/main/assets/lapwing.json.gz"),
+            File("app/src/main/assets/lapwing.json.gz"),
         ).first { it.isFile }
         val wanted = setOf("T", "-T", "EUT", "THE")
         val found = HashMap<String, String>()

@@ -159,7 +159,7 @@ private fun LookupScreen(
         SearchField(query, viewModel::setQuery, focus)
         if (query.isBlank()) {
             Text(
-                "Type an outline or a translation. The Plover dictionary is built in, and you can import your own from Dictionaries.",
+                "Type an outline or a translation. The Lapwing dictionary is built in, and you can import your own from Dictionaries.",
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.bodyLarge,
             )

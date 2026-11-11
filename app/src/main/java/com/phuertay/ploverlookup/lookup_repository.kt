@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
 private const val OUTLINE_KEY_CHUNK = 500
-private const val PLOVER_DICTIONARY = "Plover"
+private const val LAPWING_DICTIONARY = "Lapwing"
 
 class LookupRepository(
     private val context: Context,
@@ -15,13 +15,14 @@ class LookupRepository(
 
     fun dictionaries(): List<Dictionary> = dao.dictionaries()
 
-    fun ensurePlover() {
-        // The old sample mapped THE to "the". In the Plover dictionary, THE is "they".
+    fun ensureLapwing() {
+        // Older builds shipped a sample or the Plover dictionary. Lapwing is the base now.
         dao.deleteBuiltIn("Sample")
-        if (dao.dictionaries().any { it.builtIn && it.name == PLOVER_DICTIONARY }) return
-        context.assets.open("plover.json.gz").use { raw ->
+        dao.deleteBuiltIn("Plover")
+        if (dao.dictionaries().any { it.builtIn && it.name == LAPWING_DICTIONARY }) return
+        context.assets.open("lapwing.json.gz").use { raw ->
             GZIPInputStream(raw).use { input ->
-                importStream(PLOVER_DICTIONARY, input, builtIn = true) {}
+                importStream(LAPWING_DICTIONARY, input, builtIn = true) {}
             }
         }
     }
