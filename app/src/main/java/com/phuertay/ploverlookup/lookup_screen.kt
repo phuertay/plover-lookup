@@ -23,7 +23,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -158,7 +157,6 @@ private fun LookupScreen(
             TextButton(onClick = onOpenDictionaries) { Text("Dictionaries") }
         }
         SearchField(query, viewModel::setQuery, focus)
-        DictionaryNameToggle(showDictionaryName, viewModel::setShowDictionaryName)
         if (query.isBlank()) {
             Text(
                 "Type an outline or a translation. A small sample dictionary is ready, and you can import your own Plover JSON from Dictionaries.",
@@ -237,22 +235,6 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, focus: FocusMa
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
     )
-}
-
-@Composable
-private fun DictionaryNameToggle(show: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            "Dictionary name",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Switch(checked = show, onCheckedChange = onChange)
-    }
 }
 
 @Composable

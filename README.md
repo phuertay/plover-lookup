@@ -6,7 +6,7 @@ The app is Kotlin and Jetpack Compose over a local SQLite database. It is not a 
 
 ## Search
 
-Enabled dictionaries are searched together. Dictionary name is a switch on the search screen, off until you turn it on. When it is on, the name sits on the same line as the stroke.
+Enabled dictionaries are searched together. Dictionary name is a switch on the dictionaries screen, off until you turn it on. When it is on, the name sits on the same line as the stroke.
 
 A stroke has one translation. Imported dictionaries are checked in the order they were added, and the built-in sample is checked last. The first dictionary that defines a stroke wins, and a later copy of that stroke is ignored. Inside one file, the first entry for a stroke is kept. A winning `{plover:deleted}` removes the stroke.
 
