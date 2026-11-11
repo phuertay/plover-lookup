@@ -40,6 +40,16 @@ data class TranslationGroup(
     val outlines: List<OutlineRow>,
 )
 
+data class OutlineLine(
+    val outline: String,
+    val dictionaryName: String,
+)
+
+data class TranslationLines(
+    val translation: String,
+    val outlines: List<OutlineLine>,
+)
+
 data class LookupResults(
     val strokeHits: List<StrokeHit>,
     val translations: List<TranslationGroup>,
@@ -47,6 +57,19 @@ data class LookupResults(
 ) {
     companion object {
         val empty = LookupResults(emptyList(), emptyList(), false)
+    }
+}
+
+fun translationLines(groups: List<TranslationGroup>): List<TranslationLines> {
+    val grouped = LinkedHashMap<String, MutableList<OutlineLine>>()
+    for (group in groups) {
+        val outlines = grouped.getOrPut(group.translation) { mutableListOf() }
+        for (row in group.outlines) {
+            outlines.add(OutlineLine(row.outline, group.dictionaryName))
+        }
+    }
+    return grouped.map { (translation, outlines) ->
+        TranslationLines(translation, outlines)
     }
 }
 

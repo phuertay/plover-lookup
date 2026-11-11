@@ -10,12 +10,29 @@ android {
     compileSdk = 35
     buildToolsVersion = "35.0.0"
 
+    val workflowRun = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()
+
     defaultConfig {
         applicationId = "com.phuertay.ploverlookup"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = workflowRun ?: 1
+        versionName = if (workflowRun == null) "1.0" else "1.$workflowRun"
+    }
+
+    signingConfigs {
+        create("sideload") {
+            storeFile = file("sideload.keystore")
+            storePassword = "ploverlookup"
+            keyAlias = "ploverlookup"
+            keyPassword = "ploverlookup"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("sideload")
+        }
     }
 
     compileOptions {
