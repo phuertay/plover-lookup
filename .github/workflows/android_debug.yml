@@ -45,9 +45,22 @@ jobs:
       - name: Unit tests and debug APK
         run: ./gradlew testDebugUnitTest assembleDebug --stacktrace
 
-      - name: Upload debug APK
+      - name: Collect APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk plover-lookup.apk
+
+      - name: Upload APK
+        id: apk
         uses: actions/upload-artifact@v4
         with:
-          name: plover-lookup-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: plover-lookup.apk
+          path: plover-lookup.apk
           if-no-files-found: error
+
+      - name: Show the APK on this run
+        run: |
+          {
+            echo "## plover-lookup.apk"
+            echo "[Download plover-lookup.apk](${{ steps.apk.outputs.artifact-url }})"
+            echo ""
+            echo "Version code ${GITHUB_RUN_NUMBER}. Install this file over the previous build from this workflow."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -6,7 +6,7 @@ The app is Kotlin and Jetpack Compose over a local SQLite database. It is not a 
 
 ## Search
 
-Enabled dictionaries are searched together. Each match shows the dictionary it came from.
+Enabled dictionaries are searched together. Dictionary name is a switch on the search screen, off until you turn it on. When it is on, the name sits on the same line as the stroke.
 
 A stroke has one translation. Imported dictionaries are checked in the order they were added, and the built-in sample is checked last. The first dictionary that defines a stroke wins, and a later copy of that stroke is ignored. Inside one file, the first entry for a stroke is kept. A winning `{plover:deleted}` removes the stroke.
 
@@ -27,13 +27,13 @@ JDK 17 and Android SDK 35.
 ./gradlew testDebugUnitTest assembleDebug
 ```
 
-The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. It is signed with the debug key and can be sideloaded. minSdk is 26 (Android 8.0).
+The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. It is signed with the sideload key in `app/sideload.keystore`, so a newer build installs over the previous one. On GitHub Actions the version code is the workflow run number. minSdk is 26 (Android 8.0).
 
 ## Continuous integration
 
-[`.github/workflows/android_debug.yml`](.github/workflows/android_debug.yml) runs on `ubuntu-latest`. It sets up Temurin 17 with `actions/setup-java`, points `ANDROID_HOME` and `ANDROID_SDK_ROOT` at the same Android SDK, runs the unit tests and `assembleDebug`, and uploads the debug APK.
+[`.github/workflows/android_debug.yml`](.github/workflows/android_debug.yml) runs on `ubuntu-latest`. It sets up Temurin 17 with `actions/setup-java`, points `ANDROID_HOME` and `ANDROID_SDK_ROOT` at the same Android SDK, runs the unit tests and `assembleDebug`, and signs the APK with the sideload key.
 
-Download it from a run of the [Android debug workflow](https://github.com/phuertay/plover-lookup/actions/workflows/android_debug.yml): open the run and download the `plover-lookup-debug` artifact.
+Open a run of the [Android debug workflow](https://github.com/phuertay/plover-lookup/actions/workflows/android_debug.yml). The run summary has a direct download for `plover-lookup.apk`. Install that file over the copy already on the tablet. Builds from before this key used a different signature, so the first install of this APK needs the old app removed once. Later runs update in place.
 
 ## License
 

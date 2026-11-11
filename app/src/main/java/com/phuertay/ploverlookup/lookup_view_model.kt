@@ -1,6 +1,7 @@
 package com.phuertay.ploverlookup
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.lifecycle.AndroidViewModel
@@ -12,6 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private const val PREFERENCES = "lookup"
+private const val SHOW_DICTIONARY_NAME = "show_dictionary_name"
 
 sealed interface ImportUi {
     data object Idle : ImportUi
@@ -25,6 +29,7 @@ class LookupViewModel(application: Application) : AndroidViewModel(application) 
     private val app = application as PloverLookupApp
     private val repository = app.repository
     private val contentResolver = application.contentResolver
+    private val preferences = application.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
@@ -41,6 +46,11 @@ class LookupViewModel(application: Application) : AndroidViewModel(application) 
     private val _ready = MutableStateFlow(false)
     val ready: StateFlow<Boolean> = _ready
 
+    private val _showDictionaryName = MutableStateFlow(
+        preferences.getBoolean(SHOW_DICTIONARY_NAME, false),
+    )
+    val showDictionaryName: StateFlow<Boolean> = _showDictionaryName
+
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -56,6 +66,11 @@ class LookupViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setQuery(value: String) {
         _query.value = value
+    }
+
+    fun setShowDictionaryName(show: Boolean) {
+        _showDictionaryName.value = show
+        preferences.edit().putBoolean(SHOW_DICTIONARY_NAME, show).apply()
     }
 
     fun setEnabled(id: Long, enabled: Boolean) {

@@ -23,6 +23,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,8 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.NumberFormat
@@ -143,6 +146,7 @@ private fun LookupScreen(
     val query by viewModel.query.collectAsStateWithLifecycle()
     val results by viewModel.results.collectAsStateWithLifecycle()
     val dictionaries by viewModel.dictionaries.collectAsStateWithLifecycle()
+    val showDictionaryName by viewModel.showDictionaryName.collectAsStateWithLifecycle()
     val focus = LocalFocusManager.current
     Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
         Row(
@@ -154,6 +158,7 @@ private fun LookupScreen(
             TextButton(onClick = onOpenDictionaries) { Text("Dictionaries") }
         }
         SearchField(query, viewModel::setQuery, focus)
+        DictionaryNameToggle(showDictionaryName, viewModel::setShowDictionaryName)
         if (query.isBlank()) {
             Text(
                 "Type an outline or a translation. A small sample dictionary is ready, and you can import your own Plover JSON from Dictionaries.",
@@ -179,23 +184,24 @@ private fun LookupScreen(
                     key = { index, hit -> "stroke:$index:${hit.dictionaryName}:${hit.outline}" },
                 ) { _, hit ->
                     Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-                        Text(hit.outline, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleMedium)
-                        Text(hit.translation, style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            hit.dictionaryName,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        StrokeLine(
+                            outline = hit.outline,
+                            dictionaryName = hit.dictionaryName,
+                            showDictionaryName = showDictionaryName,
+                            outlineStyle = MaterialTheme.typography.titleMedium,
                         )
+                        Text(hit.translation, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
-            if (results.translations.isNotEmpty()) {
+            val lines = translationLines(results.translations)
+            if (lines.isNotEmpty()) {
                 item { SectionTitle("Translations") }
                 items(
-                    results.translations,
-                    key = { group -> "text:${group.dictionaryName}\u0000${group.translation}" },
-                ) { group ->
-                    TranslationBlock(group)
+                    lines,
+                    key = { block -> "text:${block.translation}" },
+                ) { block ->
+                    TranslationBlock(block, showDictionaryName)
                 }
             }
             if (results.strokeHits.isEmpty() && results.translations.isEmpty()) {
@@ -234,6 +240,57 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, focus: FocusMa
 }
 
 @Composable
+private fun DictionaryNameToggle(show: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "Dictionary name",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Switch(checked = show, onCheckedChange = onChange)
+    }
+}
+
+@Composable
+private fun StrokeLine(
+    outline: String,
+    dictionaryName: String,
+    showDictionaryName: Boolean,
+    outlineStyle: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            outline,
+            modifier = Modifier.weight(1f),
+            fontFamily = FontFamily.Monospace,
+            style = outlineStyle,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (showDictionaryName) {
+            Text(
+                dictionaryName,
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .widthIn(max = 220.dp),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
 private fun SectionTitle(title: String) {
     Text(
         title,
@@ -244,32 +301,17 @@ private fun SectionTitle(title: String) {
 }
 
 @Composable
-private fun TranslationBlock(group: TranslationGroup) {
+private fun TranslationBlock(lines: TranslationLines, showDictionaryName: Boolean) {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        Text(group.translation, style = MaterialTheme.typography.titleMedium)
-        Text(
-            group.dictionaryName,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        group.outlines.forEach { row ->
-            Row(
-                Modifier.fillMaxWidth().padding(top = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    row.outline,
-                    modifier = Modifier.weight(1f),
-                    fontFamily = FontFamily.Monospace,
-                )
-                val label = if (row.strokeCount == 1) "1 stroke" else "${row.strokeCount} strokes"
-                Text(
-                    label,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+        Text(lines.translation, style = MaterialTheme.typography.titleMedium)
+        lines.outlines.forEach { stroke ->
+            StrokeLine(
+                outline = stroke.outline,
+                dictionaryName = stroke.dictionaryName,
+                showDictionaryName = showDictionaryName,
+                outlineStyle = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
         HorizontalDivider(Modifier.padding(top = 8.dp))
     }
