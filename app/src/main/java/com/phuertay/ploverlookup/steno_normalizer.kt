@@ -40,6 +40,16 @@ fun translationTrim(translation: String): String {
     return escapeNewlines(translation).trim()
 }
 
+/**
+ * Prefix matches keep spaces. `they` matches `they're`, and it does not match
+ * `the year`: folding that to `theyear` is only for an exact match.
+ */
+fun translationStartsWithQuery(translation: String, rawQuery: String): Boolean {
+    val query = rawQuery.trim().lowercase(Locale.US)
+    if (query.isEmpty()) return false
+    return translation.trim().lowercase(Locale.US).startsWith(query)
+}
+
 /** Trim, drop spaces, and uppercase. `kat` and `K A T` both become `KAT`. */
 fun normalizeOutline(outline: String): String {
     val trimmed = outline.trim()

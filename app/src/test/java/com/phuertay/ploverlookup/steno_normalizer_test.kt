@@ -56,6 +56,17 @@ class StenoNormalizerTest {
     }
 
     @Test
+    fun prefixKeepsSpacesSoTheyDoesNotMatchTheYear() {
+        assertTrue(translationStartsWithQuery("they", "they"))
+        assertTrue(translationStartsWithQuery("They're", "they"))
+        assertTrue(translationStartsWithQuery("they are", "they"))
+        assertTrue(translationStartsWithQuery("the year's", "the year"))
+        assertFalse(translationStartsWithQuery("the year", "they"))
+        assertFalse(translationStartsWithQuery("the year's", "they"))
+        assertTrue(translationStartsWithQuery("hello world", "hello"))
+    }
+
+    @Test
     fun prefixBoundMatchesSpacedTranslationsAndSkipsDifferentCase() {
         val prefix = normalizeTranslation("hello")
         val end = checkNotNull(prefixUpperBound(prefix))
