@@ -47,4 +47,23 @@ class LookupDisplayTest {
         assertEquals(listOf("the", "The", "The Hobbit"), groups.map { it.translation })
         assertEquals(listOf("-T"), groups[0].outlines.map { it.outline })
     }
+
+    @Test
+    fun capitalizedQueryListsCapitalizedPhrasesBeforeLowercase() {
+        val groups = groupTranslations(
+            listOf(
+                TranslationRow("THEPL", "them", 1, "Lapwing"),
+                TranslationRow("THEPL", "Them", 1, "Lapwing"),
+                TranslationRow("#-T/HO/PWEUT", "The Hobbit", 3, "Lapwing"),
+                TranslationRow("-T", "the", 1, "Lapwing"),
+                TranslationRow("#-T", "The", 1, "Lapwing"),
+                TranslationRow("THR", "there", 1, "Lapwing"),
+            ),
+            "The",
+        )
+        assertEquals(
+            listOf("The", "the", "Them", "The Hobbit", "them", "there"),
+            groups.map { it.translation },
+        )
+    }
 }

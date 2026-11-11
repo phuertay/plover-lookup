@@ -61,8 +61,9 @@ data class LookupResults(
 }
 
 /**
- * The typed word comes first, then the same word in another case, then longer
- * phrases. `the` stays ahead of `The` and `The Hobbit`.
+ * The typed word comes first, then the same word in another case.
+ * A capitalized query then lists capitalized phrases before lowercase ones,
+ * so `The` finds `The Hobbit` before `them`.
  */
 internal fun translationRank(translation: String, rawQuery: String): Int {
     val query = rawQuery.trim()
@@ -70,6 +71,9 @@ internal fun translationRank(translation: String, rawQuery: String): Int {
     val text = translation.trim()
     if (text == query) return 0
     if (text.equals(query, ignoreCase = true)) return 1
+    if (query[0].isUpperCase()) {
+        return if (text.isNotEmpty() && text[0].isUpperCase()) 2 else 3
+    }
     return 2
 }
 
