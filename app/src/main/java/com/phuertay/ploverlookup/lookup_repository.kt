@@ -49,7 +49,12 @@ class LookupRepository(
         val exact = LinkedHashMap<String, TranslationRow>()
         absorb(keepWinners(exactRaw, winners).map { it.toTranslationRow() }, exact)
         val prefix = LinkedHashMap<String, TranslationRow>()
-        absorb(keepWinners(prefixRaw, winners).map { it.toTranslationRow() }, prefix)
+        absorb(
+            keepWinners(prefixRaw, winners)
+                .filter { translationStartsWithQuery(it.translation, match.rawTrimmed) }
+                .map { it.toTranslationRow() },
+            prefix,
+        )
         val prefixOnly = prefix.filterKeys { it !in exact }
         val combined = ArrayList<TranslationRow>(exact.size + prefixOnly.size)
         combined.addAll(exact.values)
