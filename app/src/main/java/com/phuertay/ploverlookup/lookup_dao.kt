@@ -24,6 +24,9 @@ interface LookupDao {
     @Query("DELETE FROM dictionary WHERE id = :id AND built_in = 0")
     fun deleteImported(id: Long)
 
+    @Query("DELETE FROM dictionary WHERE built_in = 1 AND name = :name")
+    fun deleteBuiltIn(name: String)
+
     @Insert
     fun insertEntries(entries: List<Entry>)
 

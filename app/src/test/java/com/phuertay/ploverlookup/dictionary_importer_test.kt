@@ -6,8 +6,10 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.util.zip.GZIPInputStream
 
 class DictionaryImporterTest {
     @Test
@@ -124,6 +126,25 @@ class DictionaryImporterTest {
         assertTrue(entries.contains("TP-PL" to "{.}"))
         assertTrue(entries.contains("KAFE" to "café"))
         assertTrue(entries.size < 40)
+    }
+
+    @Test
+    fun ploverDictionaryHasBriefsForItAndThe() {
+        val file = listOf(
+            File("src/main/assets/plover.json.gz"),
+            File("app/src/main/assets/plover.json.gz"),
+        ).first { it.isFile }
+        val wanted = setOf("T", "-T", "EUT", "THE")
+        val found = HashMap<String, String>()
+        GZIPInputStream(FileInputStream(file)).use { input ->
+            PloverJsonParser().parse(input) { outline, translation ->
+                if (outline in wanted) found[outline] = translation
+            }
+        }
+        assertEquals("it", found["T"])
+        assertEquals("it", found["EUT"])
+        assertEquals("the", found["-T"])
+        assertEquals("they", found["THE"])
     }
 
     private fun largeDictionary(entryCount: Int): String {
