@@ -32,11 +32,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -146,7 +147,6 @@ private fun LookupScreen(
     val results by viewModel.results.collectAsStateWithLifecycle()
     val dictionaries by viewModel.dictionaries.collectAsStateWithLifecycle()
     val showDictionaryName by viewModel.showDictionaryName.collectAsStateWithLifecycle()
-    val focus = LocalFocusManager.current
     Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
         Row(
             Modifier.fillMaxWidth(),
@@ -156,7 +156,7 @@ private fun LookupScreen(
             Text("Plover lookup", style = MaterialTheme.typography.headlineSmall)
             TextButton(onClick = onOpenDictionaries) { Text("Dictionaries") }
         }
-        SearchField(query, viewModel::setQuery, focus)
+        SearchField(query, viewModel::setQuery)
         if (query.isBlank()) {
             Text(
                 "Type an outline or a translation. The Lapwing dictionary is built in, and you can import your own from Dictionaries.",
@@ -225,15 +225,35 @@ private fun LookupScreen(
 }
 
 @Composable
-private fun SearchField(query: String, onQuery: (String) -> Unit, focus: FocusManager) {
+private fun SearchField(query: String, onQuery: (String) -> Unit) {
+    var field by remember {
+        mutableStateOf(TextFieldValue(query, selection = TextRange(query.length)))
+    }
+    val keyboard = LocalSoftwareKeyboardController.current
     OutlinedTextField(
-        value = query,
-        onValueChange = onQuery,
+        value = field,
+        onValueChange = { updated ->
+            field = updated
+            if (updated.text != query) onQuery(updated.text)
+        },
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         placeholder = { Text("Enter definition or stroke to lookup") },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                field = selectQueryForReplacement(field)
+                keyboard?.show()
+            },
+        ),
+    )
+}
+
+/** Select the searched word so the next one typed replaces it. */
+internal fun selectQueryForReplacement(value: TextFieldValue): TextFieldValue {
+    return value.copy(
+        selection = TextRange(0, value.text.length),
+        composition = null,
     )
 }
 
