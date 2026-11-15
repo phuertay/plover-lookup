@@ -1,6 +1,9 @@
 package com.phuertay.ploverlookup
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class LookupDisplayTest {
@@ -65,5 +68,19 @@ class LookupDisplayTest {
             listOf("The", "the", "Them", "The Hobbit", "them", "there"),
             groups.map { it.translation },
         )
+    }
+
+    @Test
+    fun searchSelectsTheQuerySoTheNextWordReplacesIt() {
+        val selected = selectQueryForReplacement(
+            TextFieldValue(
+                text = "they",
+                selection = TextRange(4),
+                composition = TextRange(0, 4),
+            ),
+        )
+        assertEquals("they", selected.text)
+        assertEquals(TextRange(0, 4), selected.selection)
+        assertNull(selected.composition)
     }
 }
